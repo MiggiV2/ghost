@@ -1,11 +1,10 @@
 use std::{env, process::exit};
 
-use matrix_sdk::{
-    config::SyncSettings, ruma::events::room::member::StrippedRoomMemberEvent, Client,
-};
+use matrix_sdk::{Client, config::SyncSettings, RoomType, ruma::events::room::member::StrippedRoomMemberEvent};
 use matrix_sdk::room::Room;
+use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
 use matrix_sdk::ruma::user_id;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 async fn on_stripped_state_member(
     room_member: StrippedRoomMemberEvent,
@@ -38,6 +37,33 @@ async fn on_stripped_state_member(
     });
 }
 
+async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
+    if room.room_type() != RoomType::Joined {
+        return;
+    }
+    let MessageType::Text(text_content) = event.content.msgtype else {
+        return;
+    };
+
+    println!("Got message {}", &text_content.body);
+
+    if text_content.body.contains("!party") {
+        let _content = RoomMessageEventContent::text_plain("🎉🎊🥳 let's PARTY!! 🥳🎊🎉");
+
+        println!("sending");
+
+        // send our message to the room we found the "!party" command in
+        // the last parameter is an optional transaction id which we don't
+        // care about.
+
+        // room.send(content, None).await.unwrap();
+        // client.send(content, None).await.unwrap();
+
+        println!("message sent");
+    }
+}
+
+
 async fn login_and_sync(
     username: &str,
     password: &str,
@@ -54,6 +80,7 @@ async fn login_and_sync(
     println!("logged in as {username}");
 
     client.add_event_handler(on_stripped_state_member);
+    client.add_event_handler(on_room_message);
 
     client.sync(SyncSettings::default()).await?;
 
@@ -64,7 +91,7 @@ async fn login_and_sync(
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let ( username, password) =
+    let (username, password) =
         match (env::args().nth(1), env::args().nth(2)) {
             (Some(a), Some(b)) => (a, b),
             _ => {
