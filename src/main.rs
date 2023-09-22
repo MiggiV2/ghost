@@ -2,8 +2,8 @@ use std::{env, process::exit};
 
 use matrix_sdk::{Client, config::SyncSettings, RoomType, ruma::events::room::member::StrippedRoomMemberEvent};
 use matrix_sdk::room::Room;
+use matrix_sdk::ruma::{TransactionId, user_id};
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
-use matrix_sdk::ruma::user_id;
 use tokio::time::{Duration, sleep};
 
 async fn on_stripped_state_member(
@@ -48,13 +48,18 @@ async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     println!("Got message {}", &text_content.body);
 
     if text_content.body.contains("!party") {
-        let _content = RoomMessageEventContent::text_plain("🎉🎊🥳 let's PARTY!! 🥳🎊🎉");
+        let content = RoomMessageEventContent::text_plain("🎉🎊🥳 let's PARTY!! 🥳🎊🎉");
 
         println!("sending");
 
         // send our message to the room we found the "!party" command in
         // the last parameter is an optional transaction id which we don't
         // care about.
+        let transaction_id = TransactionId::new();
+        let party_msg = matrix_sdk::ruma::api::client::message::send_message_event::v3::Request::new(
+            room.room_id(), &transaction_id, &content,
+        ).expect("Failed to create request");
+        room.client().send(party_msg, None).await.expect("Failed to send message");
 
         // room.send(content, None).await.unwrap();
         // client.send(content, None).await.unwrap();
