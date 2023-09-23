@@ -4,7 +4,6 @@ use matrix_sdk::{
     Client,
     config::SyncSettings,
 };
-use matrix_sdk::ruma::RoomId;
 
 use crate::handler::Handler;
 
@@ -14,7 +13,7 @@ mod handler;
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let (homeserver_url, username, password) =
+    let (home_server_url, username, password) =
         match (env::args().nth(1), env::args().nth(2), env::args().nth(3)) {
             (Some(a), Some(b), Some(c)) => (a, b, c),
             _ => {
@@ -26,24 +25,24 @@ async fn main() -> anyhow::Result<()> {
             }
         };
 
-    login_and_sync(homeserver_url, &username, &password).await?;
+    login_and_sync(home_server_url, &username, &password).await?;
     Ok(())
 }
 
 async fn login_and_sync(
-    homeserver_url: String,
+    home_server_url: String,
     username: &str,
     password: &str,
 ) -> anyhow::Result<()> {
     let client = Client::builder()
-        .homeserver_url(homeserver_url)
+        .homeserver_url(home_server_url)
         .build()
         .await?;
 
     client
         .matrix_auth()
         .login_username(username, password)
-        .initial_device_display_name("getting started bot")
+        .initial_device_display_name("ghost-bot")
         .await?;
 
     println!("logged in as {username}");
@@ -54,9 +53,7 @@ async fn login_and_sync(
 
     client.add_event_handler(Handler::on_room_message);
 
-    let room_id = RoomId::parse("!hFekksusgjPusUvBbO:matrix.familyhainz.de").unwrap();
-    let room = client.get_room(room_id.as_ref()).unwrap();
-    Handler::on_startup(room);
+    Handler::on_startup(String::from("!hFekksusgjPusUvBbO"), &client).await;
     let settings = SyncSettings::default().token(sync_token);
     client.sync(settings).await?; // this essentially loops until we kill the bot
 
