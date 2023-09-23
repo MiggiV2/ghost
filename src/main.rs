@@ -8,6 +8,7 @@ use matrix_sdk::{
 use crate::handler::Handler;
 
 mod handler;
+mod status_checker;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
