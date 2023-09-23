@@ -22,7 +22,6 @@ impl HealthChecker {
             return false;
         }
 
-        println!("Homeserver looks healthy!");
         return true;
     }
 
