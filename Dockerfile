@@ -1,6 +1,8 @@
 FROM rust:1.72-bookworm as builder
 WORKDIR /usr/src/ghost-bot
-COPY . .
+COPY src src
+COPY Cargo.toml .
+COPY Cargo.lock .
 RUN cargo install --path .
 
 FROM debian:bookworm-slim
