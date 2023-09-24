@@ -43,7 +43,7 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
                 matrix_url: String::from("https://matrix.familyhainz.de"),
             };
             let healthy_content = build_health_message(&checker).await;
-            let content = RoomMessageEventContent::text_plain(healthy_content);
+            let content = RoomMessageEventContent::text_plain(healthy_content.content);
             if let Err(e) = room.send(content, None).await {
                 eprintln!("Failed to send message! {}", e);
             }

@@ -81,6 +81,25 @@ impl HealthChecker {
 
         return true;
     }
+
+    /// 1 1 1 1 -> 15
+    /// 1 0 1 1 -> 11
+    pub fn get_status_id(&self, is_alive_1: bool, is_alive_2: bool, is_alive_3: bool, is_alive_4: bool) -> u8 {
+        let mut code = 0;
+        if is_alive_1 {
+            code += 8;
+        }
+        if is_alive_2 {
+            code += 4;
+        }
+        if is_alive_3 {
+            code += 2;
+        }
+        if is_alive_4 {
+            code += 1;
+        }
+        code
+    }
 }
 
 #[cfg(test)]
