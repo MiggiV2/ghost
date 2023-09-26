@@ -3,6 +3,7 @@ use std::time::Duration;
 use matrix_sdk::Client;
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use matrix_sdk::ruma::RoomId;
+use tokio::task::yield_now;
 use tokio::time::sleep;
 
 use crate::status_checker::HealthChecker;
@@ -24,18 +25,18 @@ pub async fn on_startup_message(room: String, client: &Client) {
             eprintln!("Failed to send message! {}", e);
         }
 
-        let mut code = 8; // only matrix is reach able
-        let checker = HealthChecker {
-            portainer_url: String::from("https://vmd116727.contaboserver.net"),
-            forgejo_url: String::from("https://gitea.familyhainz.de"),
-            nextcloud_url: String::from("https://nextcloud.mymiggi.de"),
-            matrix_url: String::from("https://matrix.familyhainz.de"),
-        };
+        let mut code = 31; // only matrix is reach able
+        let checker = HealthChecker::new(
+            "https://matrix.familyhainz.de", "https://nextcloud.mymiggi.de",
+            "https://gitea.familyhainz.de", "https://vmd116727.contaboserver.net",
+            "https://auth.familyhainz.de");
 
         loop {
-            sleep(Duration::from_secs(60 * 1)).await;
+            sleep(Duration::from_secs(60 * 5)).await;
             let healthy_content = build_health_message(&checker).await;
+            yield_now().await;
             if healthy_content.code == code {
+                println!("No update!");
                 continue;
             }
             code = healthy_content.code;
@@ -99,6 +100,7 @@ mod msg_builder_tests {
             forgejo_url: String::from("https://gitea.familyhainz.de"),
             nextcloud_url: String::from("https://nextcloud.mymiggi.de"),
             matrix_url: String::from("https://matrix.familyhainz.de"),
+            keycloak_url: String::from("https://auth.familyhainz.de"),
         };
         let content = tokio_test::block_on(build_health_message(&checker));
         let expected = String::from("🐋 Here is an overview of the accessible web services and their status:
