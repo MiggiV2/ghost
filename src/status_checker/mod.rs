@@ -9,6 +9,17 @@ pub struct HealthChecker {
 }
 
 impl HealthChecker {
+    pub fn new(matrix_url: &str, nextcloud_url: &str, forgejo_url: &str, portainer_url: &str,
+               keycloak_url: &str) -> Self {
+        Self {
+            matrix_url: matrix_url.to_string(),
+            nextcloud_url: nextcloud_url.to_string(),
+            forgejo_url: forgejo_url.to_string(),
+            portainer_url: portainer_url.to_string(),
+            keycloak_url: keycloak_url.to_string(),
+        }
+    }
+
     pub async fn check_matrix(&self) -> bool {
         let resp = reqwest::get(format!("{}/health", &self.matrix_url))
             .await

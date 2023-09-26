@@ -36,12 +36,10 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
 
     if text_content.body.contains("!health") {
         tokio::spawn(async move {
-            let checker = HealthChecker {
-                portainer_url: String::from("https://vmd116727.contaboserver.net"),
-                forgejo_url: String::from("https://gitea.familyhainz.de"),
-                nextcloud_url: String::from("https://nextcloud.mymiggi.de"),
-                matrix_url: String::from("https://matrix.familyhainz.de"),
-            };
+            let checker = HealthChecker::new(
+                "https://matrix.familyhainz.de", "https://nextcloud.mymiggi.de",
+                "https://gitea.familyhainz.de", "https://vmd116727.contaboserver.net",
+                "https://auth.familyhainz.de");
             let healthy_content = build_health_message(&checker).await;
             let content = RoomMessageEventContent::text_plain(healthy_content.content);
             if let Err(e) = room.send(content, None).await {
