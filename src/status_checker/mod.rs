@@ -1,4 +1,6 @@
 mod tests;
+mod services;
+mod config_builder;
 
 pub struct HealthChecker {
     pub matrix_url: String,
