@@ -26,7 +26,7 @@ pub async fn on_startup_message(room: String, client: &Client) {
             eprintln!("Failed to send message! {}", e);
         }
 
-        let mut code = 31; // only matrix is reach able
+        let mut code = 31; // every service is online
         let config = ConfBuilder::new("./checker.toml").build();
 
         loop {

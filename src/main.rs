@@ -1,9 +1,11 @@
 use std::{env, process::exit};
+use std::time::Duration;
 
 use matrix_sdk::{
     Client,
     config::SyncSettings,
 };
+use tokio::time::sleep;
 
 use crate::handler::Handler;
 
@@ -12,7 +14,7 @@ mod status_checker;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt::init();
 
     let (home_server_url, username, password) =
         match (env::args().nth(1), env::args().nth(2), env::args().nth(3)) {
@@ -56,7 +58,14 @@ async fn login_and_sync(
 
     Handler::on_startup(String::from("!hFekksusgjPusUvBbO"), &client).await;
     let settings = SyncSettings::default().token(sync_token);
-    client.sync(settings).await?; // this essentially loops until we kill the bot
 
-    Ok(())
+    let _ = client.sync(settings).await; // this essentially loops until we kill the bot
+
+    loop {
+        let sync_token = client.sync_once(SyncSettings::default()).await.unwrap_or_default().next_batch;
+        let settings = SyncSettings::default().token(sync_token);
+        let _ = client.sync(settings).await; // this essentially loops until we kill the bot
+        eprintln!("Error on sync! \nRestarting in 4 min...");
+        sleep(Duration::from_secs(60 * 4)).await;
+    }
 }
