@@ -5,7 +5,7 @@ use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessa
 use tokio::time::sleep;
 
 use crate::handler::send_startup_msg::build_health_message;
-use crate::status_checker::HealthChecker;
+use crate::status_checker::config_builder::ConfBuilder;
 
 pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     if room.state() != RoomState::Joined {
@@ -36,11 +36,8 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
 
     if text_content.body.contains("!health") {
         tokio::spawn(async move {
-            let checker = HealthChecker::new(
-                "https://matrix.familyhainz.de", "https://nextcloud.mymiggi.de",
-                "https://gitea.familyhainz.de", "https://vmd116727.contaboserver.net",
-                "https://auth.familyhainz.de");
-            let healthy_content = build_health_message(&checker).await;
+            let config = ConfBuilder::new("checker.toml").build();
+            let healthy_content = build_health_message(&config).await;
             let content = RoomMessageEventContent::text_plain(healthy_content.content);
             if let Err(e) = room.send(content, None).await {
                 eprintln!("Failed to send message! {}", e);

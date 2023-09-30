@@ -20,7 +20,7 @@ impl ConfBuilder {
     pub fn build(&self) -> Vec<Service> {
         let content = fs::read_to_string(self.file_path.to_string());
         if let Err(e) = content {
-            eprintln!("Cloud not read config file! {}", self.file_path);
+            eprintln!("Cloud not read config file {}! {}", self.file_path, e);
             return vec![];
         }
 
@@ -62,6 +62,8 @@ mod build_tests {
         let config = builder.build();
 
         assert_eq!(config.len(), 5);
-        assert_eq!(config.get(0).unwrap().get_url(), "https://matrix.familyhainz.de")
+        for service in config {
+            assert!(!service.get_url().is_empty())
+        }
     }
 }

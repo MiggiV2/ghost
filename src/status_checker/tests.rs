@@ -1,20 +1,16 @@
 #[cfg(test)]
 mod checker_tests {
-    use crate::status_checker::HealthChecker;
+    use crate::status_checker::config_builder::ConfBuilder;
 
     #[test]
     fn test_all() {
-        let checker = HealthChecker {
-            matrix_url: String::from("https://matrix.familyhainz.de"),
-            nextcloud_url: String::from("https://nextcloud.mymiggi.de"),
-            forgejo_url: String::from("https://gitea.familyhainz.de"),
-            portainer_url: String::from("https://vmd116727.contaboserver.net"),
-            keycloak_url: String::from("https://auth.familyhainz.de"),
-        };
+        let config = ConfBuilder::new("checker.toml").build();
 
-        assert!(tokio_test::block_on(checker.check_portainer()));
-        assert!(tokio_test::block_on(checker.check_forgejo()));
-        assert!(tokio_test::block_on(checker.check_nextcloud()));
-        assert!(tokio_test::block_on(checker.check_matrix()));
+        assert_eq!(config.len(), 5);
+
+        for service in config {
+            let is_okay = tokio_test::block_on(service.is_okay());
+            assert!(is_okay);
+        }
     }
 }

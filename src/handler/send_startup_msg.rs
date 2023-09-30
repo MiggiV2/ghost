@@ -6,11 +6,12 @@ use matrix_sdk::ruma::RoomId;
 use tokio::task::yield_now;
 use tokio::time::sleep;
 
-use crate::status_checker::HealthChecker;
+use crate::status_checker::config_builder::ConfBuilder;
+use crate::status_checker::services::Service;
 
 pub struct HealthStatus {
     pub content: String,
-    pub code: u8,
+    pub code: i32,
 }
 
 pub async fn on_startup_message(room: String, client: &Client) {
@@ -26,14 +27,11 @@ pub async fn on_startup_message(room: String, client: &Client) {
         }
 
         let mut code = 31; // only matrix is reach able
-        let checker = HealthChecker::new(
-            "https://matrix.familyhainz.de", "https://nextcloud.mymiggi.de",
-            "https://gitea.familyhainz.de", "https://vmd116727.contaboserver.net",
-            "https://auth.familyhainz.de");
+        let config = ConfBuilder::new("./checker.toml").build();
 
         loop {
             sleep(Duration::from_secs(60 * 5)).await;
-            let healthy_content = build_health_message(&checker).await;
+            let healthy_content = build_health_message(&config).await;
             yield_now().await;
             if healthy_content.code == code {
                 println!("No update!");
@@ -48,29 +46,26 @@ pub async fn on_startup_message(room: String, client: &Client) {
     });
 }
 
-pub async fn build_health_message(checker: &HealthChecker) -> HealthStatus {
+pub async fn build_health_message(services: &Vec<Service>) -> HealthStatus {
     let mut content = String::from("🐋 Here is an overview of the accessible web services and their status:\n");
+    let base: i32 = 2;
+    let mut index = 0;
+    let mut status_code = 0;
 
-    let is_running_1 = checker.check_matrix().await;
-    let status_line = format!("{} Matrix - {}\n", get_status_emoji(is_running_1), get_nl_text(is_running_1));
-    content.push_str(status_line.as_str());
+    for service in services {
+        let is_okay = service.is_okay().await;
+        let emoji = get_status_emoji(is_okay);
+        let text = get_nl_text(is_okay);
 
-    let is_running_2 = checker.check_forgejo().await;
-    let status_line = format!("{} Forgejo - {}\n", get_status_emoji(is_running_2), get_nl_text(is_running_2));
-    content.push_str(status_line.as_str());
+        content.push_str(format!("{} {} - {}\n", emoji, service.get_type().to_string(), text).as_str());
 
-    let is_running_3 = checker.check_portainer().await;
-    let status_line = format!("{} Portainer - {}\n", get_status_emoji(is_running_3), get_nl_text(is_running_3));
-    content.push_str(status_line.as_str());
+        status_code += base.pow(index);
+        index += 1;
+    }
 
-    let is_running_4 = checker.check_nextcloud().await;
-    let status_line = format!("{} Nextcloud - {}\n", get_status_emoji(is_running_4), get_nl_text(is_running_4));
-    content.push_str(status_line.as_str());
-
-    let code = checker.get_status_id(is_running_1, is_running_2, is_running_3, is_running_4);
     HealthStatus {
         content,
-        code,
+        code: status_code,
     }
 }
 
@@ -91,24 +86,16 @@ fn get_nl_text(is_healthy: bool) -> String {
 #[cfg(test)]
 mod msg_builder_tests {
     use crate::handler::send_startup_msg::build_health_message;
-    use crate::status_checker::HealthChecker;
+    use crate::status_checker::config_builder::ConfBuilder;
 
     #[test]
     fn test_one() {
-        let checker = HealthChecker {
-            portainer_url: String::from("https://vmd116727.contaboserver.net"),
-            forgejo_url: String::from("https://gitea.familyhainz.de"),
-            nextcloud_url: String::from("https://nextcloud.mymiggi.de"),
-            matrix_url: String::from("https://matrix.familyhainz.de"),
-            keycloak_url: String::from("https://auth.familyhainz.de"),
-        };
-        let content = tokio_test::block_on(build_health_message(&checker));
-        let expected = String::from("🐋 Here is an overview of the accessible web services and their status:
-🟢 Matrix - Online and ready to go
-🟢 Forgejo - Online and ready to go
-🟢 Portainer - Online and ready to go
-🟢 Nextcloud - Online and ready to go\n");
+        let config = ConfBuilder::new("./checker.toml").build();
+        let health_status = tokio_test::block_on(build_health_message(&config));
 
-        // assert_eq!(expected, content);
+        assert!(health_status.content.len() > 250);
+        assert!(health_status.content.contains("🐋"));
+        assert!(health_status.content.contains("🟢"));
+        assert!(health_status.content.contains("\n"));
     }
 }

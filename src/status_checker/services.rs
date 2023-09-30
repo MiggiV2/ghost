@@ -1,9 +1,19 @@
+use std::fmt;
+use std::fmt::Formatter;
+
+#[derive(Debug)]
 pub enum ServiceType {
     Synapse,
     Nextcloud,
     Forgejo,
     Portainer,
     Keycloak,
+}
+
+impl fmt::Display for ServiceType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 pub struct Service {
@@ -21,6 +31,10 @@ impl Service {
 
     pub fn get_url(&self) -> String {
         self.url.to_string()
+    }
+
+    pub fn get_type(&self) -> &ServiceType {
+        &self.service_type
     }
 
     pub async fn is_okay(&self) -> bool {
