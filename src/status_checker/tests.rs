@@ -9,6 +9,7 @@ mod checker_tests {
         assert_eq!(config.len(), 5);
 
         for service in config {
+            assert!(!service.get_url().is_empty());
             let is_okay = tokio_test::block_on(service.is_okay());
             assert!(is_okay);
         }
