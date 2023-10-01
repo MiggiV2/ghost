@@ -17,5 +17,5 @@ Currently, this bot is telling me which self-hosted service is currently not ava
 
 ### Build from source
 
-Run `cargo run` to simple run it.  
-Run `cargo build --release && ./target/release/rusty-cleaner` to run the optimized version.
+Run `cargo run -- MATRIX_URL MATRIX_ID MATRIX_PASSWORD` to simple run it.  
+Run `cargo build --release && ./target/release/ghost MATRIX_URL MATRIX_ID MATRIX_PASSWORD` to run the optimized version.
