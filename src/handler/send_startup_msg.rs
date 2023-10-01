@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use chrono::Local;
 use matrix_sdk::Client;
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use matrix_sdk::ruma::RoomId;
@@ -26,19 +27,26 @@ pub async fn on_startup_message(room: String, client: &Client) {
             eprintln!("Failed to send message! {}", e);
         }
 
-        let mut code = 31; // every service is online
         let config = ConfBuilder::new("./checker.toml").build();
+        let base: i32 = 2;
+        let mut code = base.pow(config.len() as u32) - 1; // every service is online
 
         loop {
-            sleep(Duration::from_secs(60 * 5)).await;
+            sleep(Duration::from_secs(10)).await;
+
             let healthy_content = build_health_message(&config).await;
+            let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
             yield_now().await;
+
             if healthy_content.code == code {
-                println!("No update!");
+                println!("{} No accessible update found.", date);
                 continue;
             }
-            code = healthy_content.code;
+
             let content = RoomMessageEventContent::text_plain(healthy_content.content);
+            code = healthy_content.code;
+            println!("{} Found accessible update!", date);
+
             if let Err(e) = room.send(content, None).await {
                 eprintln!("Failed to send message! {}", e);
             }
@@ -47,7 +55,7 @@ pub async fn on_startup_message(room: String, client: &Client) {
 }
 
 pub async fn build_health_message(services: &Vec<Service>) -> HealthStatus {
-    let mut content = String::from("🐋 Here is an overview of the accessible web services and their status:\n");
+    let mut content = String::from("🐋 Here is an update of the accessible web services and their status:\n");
     let base: i32 = 2;
     let mut index = 0;
     let mut status_code = 0;
@@ -57,9 +65,14 @@ pub async fn build_health_message(services: &Vec<Service>) -> HealthStatus {
         let emoji = get_status_emoji(is_okay);
         let text = get_nl_text(is_okay);
 
-        content.push_str(format!("{} {} - {}\n", emoji, service.get_type().to_string(), text).as_str());
-
-        status_code += base.pow(index);
+        let line;
+        if is_okay {
+            status_code += base.pow(index);
+            line = format!("{} {} - {}\n", emoji, service.get_type().to_string(), text);
+        } else {
+            line = format!("{} {} - {} Check this service on {}\n", emoji, service.get_type().to_string(), text, service.get_url());
+        }
+        content.push_str(line.as_str());
         index += 1;
     }
 
