@@ -32,7 +32,7 @@ pub async fn on_startup_message(room: String, client: &Client) {
         let mut code = base.pow(config.len() as u32) - 1; // every service is online
 
         loop {
-            sleep(Duration::from_secs(10)).await;
+            sleep(Duration::from_secs(60 * 5)).await;
 
             let healthy_content = build_health_message(&config).await;
             let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
