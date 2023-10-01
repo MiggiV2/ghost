@@ -14,7 +14,7 @@ mod status_checker;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt::init();
+    // tracing_subscriber::fmt::init();
 
     let (home_server_url, username, password) =
         match (env::args().nth(1), env::args().nth(2), env::args().nth(3)) {
