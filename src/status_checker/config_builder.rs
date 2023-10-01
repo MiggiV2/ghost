@@ -43,8 +43,9 @@ impl ConfBuilder {
         map.insert("keycloak", Keycloak);
 
         for (conf_key, service_type) in map {
-            if let Some(url) = value[conf_key].as_str() {
-                config.push(Service::new(url.to_string(), service_type));
+            if let Some(conf_value) = value.get(conf_key) {
+                let url = conf_value.as_str().unwrap_or_default().to_string();
+                config.push(Service::new(url, service_type));
             }
         }
 
