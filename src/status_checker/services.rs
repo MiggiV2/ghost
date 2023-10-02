@@ -1,22 +1,4 @@
-use std::fmt;
-use std::fmt::Formatter;
-
-use strum_macros::EnumIter;
-
-#[derive(Debug, EnumIter)]
-pub enum ServiceType {
-    Synapse,
-    Nextcloud,
-    Forgejo,
-    Portainer,
-    Keycloak,
-}
-
-impl fmt::Display for ServiceType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+use crate::status_checker::ServiceType;
 
 pub struct Service {
     service_type: ServiceType,
@@ -64,6 +46,8 @@ impl Service {
             ServiceType::Forgejo => { String::from("/api/healthz") }
             ServiceType::Portainer => { String::from("/api/system/status") }
             ServiceType::Keycloak => { String::from("/health") }
+            ServiceType::Bitwarden => { String::from("/alive") }
+            ServiceType::Wordpress => { String::from("/robots.txt") }
         }
     }
 
@@ -83,6 +67,12 @@ impl Service {
             }
             ServiceType::Keycloak => {
                 body.contains("\"status\":\"UP\"")
+            }
+            ServiceType::Bitwarden => {
+                !body.is_empty()
+            }
+            ServiceType::Wordpress => {
+                !body.is_empty()
             }
         }
     }

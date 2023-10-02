@@ -6,7 +6,7 @@ mod checker_tests {
     fn test_all() {
         let config = ConfBuilder::new("checker.toml").build();
 
-        assert_eq!(config.len(), 5);
+        assert_eq!(config.len(), 7);
 
         for service in config {
             assert!(!service.get_url().is_empty());

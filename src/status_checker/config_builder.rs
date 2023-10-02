@@ -4,7 +4,8 @@ use std::fs;
 use strum::IntoEnumIterator;
 use toml::Table;
 
-use crate::status_checker::services::{Service, ServiceType};
+use crate::status_checker::services::Service;
+use crate::status_checker::ServiceType;
 
 pub struct ConfBuilder {
     file_path: String,
