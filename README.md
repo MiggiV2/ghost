@@ -12,6 +12,8 @@ Currently, this bot is telling me which self-hosted service is currently not ava
 3. [x] Nextcloud
 4. [x] Keycloak
 5. [x] Portainer
+6. [x] Bitwarden
+7. [x] WordPress
 
 ## How to run this program
 
