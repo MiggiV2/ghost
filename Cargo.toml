@@ -14,3 +14,5 @@ reqwest = "^0.11.10" # Check matrix-sdk depedencies
 matrix-sdk = { git = "https://github.com/matrix-org/matrix-rust-sdk.git", rev = "e8624706d4e846ab9b163e9bfd542a0bbb1d64f7" }
 toml = "0.8.1"
 chrono = "0.4.31"
+strum = "0.25"
+strum_macros = "0.25"
