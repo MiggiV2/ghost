@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::fs;
 
+use strum::IntoEnumIterator;
 use toml::Table;
 
-use crate::status_checker::services::Service;
-use crate::status_checker::services::ServiceType::{Forgejo, Keycloak, Nextcloud, Portainer, Synapse};
+use crate::status_checker::services::{Service, ServiceType};
 
 pub struct ConfBuilder {
     file_path: String,
@@ -36,14 +36,12 @@ impl ConfBuilder {
         let mut config: Vec<Service> = Vec::new();
 
         let mut map = HashMap::new();
-        map.insert("synapse", Synapse);
-        map.insert("forgejo", Forgejo);
-        map.insert("nextcloud", Nextcloud);
-        map.insert("portainer", Portainer);
-        map.insert("keycloak", Keycloak);
+        for service in ServiceType::iter() {
+            map.insert(service.to_string().to_lowercase(), service);
+        }
 
         for (conf_key, service_type) in map {
-            if let Some(conf_value) = value.get(conf_key) {
+            if let Some(conf_value) = value.get(conf_key.as_str()) {
                 let url = conf_value.as_str().unwrap_or_default().to_string();
                 config.push(Service::new(url, service_type));
             }

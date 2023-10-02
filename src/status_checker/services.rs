@@ -1,7 +1,9 @@
 use std::fmt;
 use std::fmt::Formatter;
 
-#[derive(Debug)]
+use strum_macros::EnumIter;
+
+#[derive(Debug, EnumIter)]
 pub enum ServiceType {
     Synapse,
     Nextcloud,
