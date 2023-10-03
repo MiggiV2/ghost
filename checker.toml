@@ -5,3 +5,5 @@ keycloak = "https://auth.familyhainz.de"
 portainer = "https://vmd116727.contaboserver.net"
 bitwarden = "https://bitwarden.familyhainz.de"
 wordpress = "https://www.mymiggi.de"
+#
+room-id = "!hFekksusgjPusUvBbO:matrix.familyhainz.de"
