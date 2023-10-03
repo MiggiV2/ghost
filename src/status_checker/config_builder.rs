@@ -1,5 +1,4 @@
 use std::{env, fs};
-use std::collections::HashMap;
 
 use strum::IntoEnumIterator;
 use toml::Table;
@@ -11,6 +10,24 @@ pub struct ConfBuilder {
     file_path: String,
 }
 
+pub struct CheckerConfig {
+    pub services: Vec<Service>,
+    pub room_id: Option<String>,
+}
+
+impl CheckerConfig {
+    pub fn empty() -> Self {
+        CheckerConfig {
+            services: Vec::new(),
+            room_id: None,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.room_id.is_none() || self.services.is_empty()
+    }
+}
+
 impl ConfBuilder {
     pub fn new() -> Self {
         let default = String::from("checker.toml");
@@ -19,11 +36,11 @@ impl ConfBuilder {
         }
     }
 
-    pub fn build(&self) -> Vec<Service> {
+    pub fn build(&self) -> CheckerConfig {
         let content = fs::read_to_string(self.file_path.to_string());
         if let Err(e) = content {
             eprintln!("Cloud not read config file {}! {}", self.file_path, e);
-            return vec![];
+            return CheckerConfig::empty();
         }
 
         let config = content.unwrap_or_default();
@@ -31,25 +48,31 @@ impl ConfBuilder {
 
         if let Err(e) = value {
             eprintln!("Failed to parse config file! {}", e);
-            return vec![];
+            return CheckerConfig::empty();
         }
 
         let value = value.unwrap_or_default();
-        let mut config: Vec<Service> = Vec::new();
+        let mut services: Vec<Service> = Vec::new();
+        let room_id = value.get("room-id");
 
-        let mut map = HashMap::new();
-        for service in ServiceType::iter() {
-            map.insert(service.to_string().to_lowercase(), service);
+        if let None = room_id {
+            return CheckerConfig::empty();
         }
 
-        for (conf_key, service_type) in map {
+        let room_id = room_id.expect("Checked").as_str().unwrap_or_default().to_string();
+
+        for service in ServiceType::iter() {
+            let conf_key = service.to_string().to_lowercase();
             if let Some(conf_value) = value.get(conf_key.as_str()) {
                 let url = conf_value.as_str().unwrap_or_default().to_string();
-                config.push(Service::new(url, service_type));
+                services.push(Service::new(url, service));
             }
         }
 
-        return config;
+        CheckerConfig {
+            services,
+            room_id: Some(room_id),
+        }
     }
 }
 
@@ -62,8 +85,8 @@ mod build_tests {
         let builder = ConfBuilder::new();
         let config = builder.build();
 
-        assert_eq!(7, config.len(), "Expected more or less services in config file!");
-        for service in config {
+        assert_eq!(7, config.services.len(), "Expected more or less services in config file!");
+        for service in config.services {
             assert!(!service.get_url().is_empty())
         }
     }

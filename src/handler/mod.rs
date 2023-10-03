@@ -15,8 +15,8 @@ impl Handler {
         auto_join::on_stripped_state_member(room_member, client, room);
     }
 
-    pub async fn on_startup(room: String, client: &Client) {
-        send_startup_msg::on_startup_message(room, client).await;
+    pub async fn on_startup(client: &Client) {
+        send_startup_msg::on_startup_message(client).await;
     }
 
     pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {

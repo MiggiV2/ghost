@@ -37,7 +37,7 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     if text_content.body.contains("!health") {
         tokio::spawn(async move {
             let config = ConfBuilder::new().build();
-            let healthy_content = build_health_message(&config).await;
+            let healthy_content = build_health_message(&config.services).await;
             let content = RoomMessageEventContent::text_plain(healthy_content.content);
             if let Err(e) = room.send(content, None).await {
                 eprintln!("Failed to send message! {}", e);

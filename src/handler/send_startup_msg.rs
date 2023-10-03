@@ -15,11 +15,18 @@ pub struct HealthStatus {
     pub code: i32,
 }
 
-pub async fn on_startup_message(room: String, client: &Client) {
-    let home_server_url = client.homeserver().await;
-    let home_server = String::from(":") + home_server_url.domain().unwrap_or_default();
-    let room_id = RoomId::parse(room + home_server.as_str()).unwrap();
-    let room = client.get_room(room_id.as_ref()).unwrap();
+pub async fn on_startup_message(client: &Client) {
+    let config = ConfBuilder::new().build();
+
+    if config.is_empty() {
+        eprintln!("No room id or services set!");
+        return;
+    }
+
+    let room_id = RoomId::parse(config.room_id.unwrap_or_default())
+        .expect("Can't parse room!");
+    let room = client.get_room(&room_id)
+        .expect("Failed to get room!");
 
     tokio::spawn(async move {
         let content = RoomMessageEventContent::text_plain("Bot is up and running! 👟");
@@ -27,14 +34,13 @@ pub async fn on_startup_message(room: String, client: &Client) {
             eprintln!("Failed to send message! {}", e);
         }
 
-        let config = ConfBuilder::new().build();
         let base: i32 = 2;
-        let mut code = base.pow(config.len() as u32) - 1; // every service is online
+        let mut code = base.pow(config.services.len() as u32) - 1; // every service is online
 
         loop {
             sleep(Duration::from_secs(60 * 5)).await;
 
-            let healthy_content = build_health_message(&config).await;
+            let healthy_content = build_health_message(&config.services).await;
             let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
             yield_now().await;
 
@@ -104,7 +110,7 @@ mod msg_builder_tests {
     #[test]
     fn test_one() {
         let config = ConfBuilder::new().build();
-        let health_status = tokio_test::block_on(build_health_message(&config));
+        let health_status = tokio_test::block_on(build_health_message(&config.services));
 
         assert!(health_status.content.len() > 250, "Message is to short");
         assert!(health_status.content.contains("🐋"), "There is a whale missing!");

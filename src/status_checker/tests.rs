@@ -6,12 +6,12 @@ mod checker_tests {
     fn test_all() {
         let config = ConfBuilder::new().build();
 
-        assert_eq!(config.len(), 7);
+        assert_eq!(config.services.len(), 7);
 
-        for service in config {
+        for service in config.services {
             assert!(!service.get_url().is_empty());
             let is_okay = tokio_test::block_on(service.is_okay());
-            assert!(is_okay);
+            assert!(is_okay, "Services {} is not okay", service.get_type());
         }
     }
 }

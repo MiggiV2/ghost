@@ -56,7 +56,7 @@ async fn login_and_sync(
 
     client.add_event_handler(Handler::on_room_message);
 
-    Handler::on_startup(String::from("!hFekksusgjPusUvBbO"), &client).await;
+    Handler::on_startup(&client).await;
     let settings = SyncSettings::default().token(sync_token);
 
     let _ = client.sync(settings).await; // this essentially loops until we kill the bot
