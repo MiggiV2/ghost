@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+    miggi:
+        container_name: ghost
+        restart: always 
+        environment:
+            - 'URL=https://matrix.example.com'
+            - 'USR=@ghost:matrix.example.com'
+            - 'PW=VERY_SECURE_PASSWORD'
+        image: gitea.familyhainz.de/miggi/matrix-ghost-bot:amd64
+#        image: gitea.familyhainz.de/miggi/matrix-ghost-bot:arm-v7 # For RaspberryPi4
