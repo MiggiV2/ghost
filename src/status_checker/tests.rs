@@ -4,7 +4,7 @@ mod checker_tests {
 
     #[test]
     fn test_all() {
-        let config = ConfBuilder::new("checker.toml").build();
+        let config = ConfBuilder::new().build();
 
         assert_eq!(config.len(), 7);
 

@@ -27,7 +27,7 @@ pub async fn on_startup_message(room: String, client: &Client) {
             eprintln!("Failed to send message! {}", e);
         }
 
-        let config = ConfBuilder::new("./checker.toml").build();
+        let config = ConfBuilder::new().build();
         let base: i32 = 2;
         let mut code = base.pow(config.len() as u32) - 1; // every service is online
 
@@ -103,12 +103,12 @@ mod msg_builder_tests {
 
     #[test]
     fn test_one() {
-        let config = ConfBuilder::new("./checker.toml").build();
+        let config = ConfBuilder::new().build();
         let health_status = tokio_test::block_on(build_health_message(&config));
 
-        assert!(health_status.content.len() > 250);
-        assert!(health_status.content.contains("🐋"));
-        assert!(health_status.content.contains("🟢"));
+        assert!(health_status.content.len() > 250, "Message is to short");
+        assert!(health_status.content.contains("🐋"), "There is a whale missing!");
+        assert!(health_status.content.contains("🟢"), "Expected at least one green dot.");
         assert!(health_status.content.contains("\n"));
     }
 }

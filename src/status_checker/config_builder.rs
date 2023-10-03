@@ -1,5 +1,5 @@
+use std::{env, fs};
 use std::collections::HashMap;
-use std::fs;
 
 use strum::IntoEnumIterator;
 use toml::Table;
@@ -12,9 +12,10 @@ pub struct ConfBuilder {
 }
 
 impl ConfBuilder {
-    pub fn new(file_path: &str) -> Self {
+    pub fn new() -> Self {
+        let default = String::from("checker.toml");
         Self {
-            file_path: file_path.to_string()
+            file_path: env::var("CHECKER_CONF").unwrap_or(default)
         }
     }
 
@@ -57,11 +58,11 @@ mod build_tests {
     use crate::status_checker::config_builder::ConfBuilder;
 
     #[test]
-    fn test_one() {
-        let builder = ConfBuilder::new("checker.toml");
+    fn read_config_correctly() {
+        let builder = ConfBuilder::new();
         let config = builder.build();
 
-        assert_eq!(config.len(), 5);
+        assert_eq!(7, config.len(), "Expected more or less services in config file!");
         for service in config {
             assert!(!service.get_url().is_empty())
         }
