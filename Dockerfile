@@ -5,8 +5,8 @@ COPY Cargo.toml .
 COPY Cargo.lock .
 RUN cargo install --path .
 
-FROM debian:bookworm-slim
-RUN apt update && apt install sqlite3 libssl-dev curl -y && rm -rf /var/lib/apt/lists/*
+FROM debian:bullseye-slim
+RUN apt update && apt install sqlite3 curl -y && rm -rf /var/lib/apt/lists/*
 ENV URL ${HOMESERVER_URL}
 ENV USR ${USERNAME}
 ENV PW ${PASSWORD}
