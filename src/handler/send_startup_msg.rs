@@ -36,6 +36,7 @@ pub async fn on_startup_message(client: &Client) {
 
         let base: i32 = 2;
         let mut code = base.pow(config.services.len() as u32) - 1; // every service is online
+        let mut code_before = code;
 
         loop {
             sleep(Duration::from_secs(60 * 5)).await;
@@ -44,18 +45,30 @@ pub async fn on_startup_message(client: &Client) {
             let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
             yield_now().await;
 
-            if healthy_content.code == code {
+            let no_change = healthy_content.code == code && code == code_before;
+            if no_change {
                 println!("{} No accessible update found.", date);
                 continue;
             }
 
-            let content = RoomMessageEventContent::text_plain(healthy_content.content);
-            code = healthy_content.code;
-            println!("{} Found accessible update!", date);
-
-            if let Err(e) = room.send(content, None).await {
-                eprintln!("Failed to send message! {}", e);
+            let change_1st_time = healthy_content.code != code && code == code_before;
+            if change_1st_time {
+                println!("{} Found accessible update, but we are waiting...", date);
             }
+
+            let change_2nd_time = healthy_content.code == code && code != code_before;
+            if change_2nd_time {
+                let content = RoomMessageEventContent::text_plain(healthy_content.content);
+                code = healthy_content.code;
+                println!("{} Found accessible update!", date);
+
+                if let Err(e) = room.send(content, None).await {
+                    eprintln!("Failed to send message! {}", e);
+                }
+            }
+
+            code_before = code;
+            code = healthy_content.code;
         }
     });
 }
