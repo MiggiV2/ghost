@@ -51,9 +51,15 @@ pub async fn on_startup_message(client: &Client) {
                 continue;
             }
 
-            let change_1st_time = healthy_content.code != code && code == code_before;
+            let change_1st_time = healthy_content.code != code;
+            let is_false_positive = healthy_content.code == code_before;
             if change_1st_time {
-                println!("{} Found accessible update, but we are waiting...", date);
+                if !is_false_positive {
+                    println!("{} Found accessible update, but we are waiting...", date);
+                } else {
+                    println!("{} Found accessible update, but it was a false positive.", date);
+                    code = healthy_content.code;    // Correct it
+                }
             }
 
             let change_2nd_time = healthy_content.code == code && code != code_before;
