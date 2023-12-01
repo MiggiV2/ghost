@@ -30,7 +30,7 @@ pub async fn on_startup_message(client: &Client) {
 
     tokio::spawn(async move {
         let content = RoomMessageEventContent::text_plain("Bot is up and running! 👟");
-        if let Err(e) = room.send(content, None).await {
+        if let Err(e) = room.send(content).await {
             eprintln!("Failed to send message! {}", e);
         }
 
@@ -68,7 +68,7 @@ pub async fn on_startup_message(client: &Client) {
                 code = healthy_content.code;
                 println!("{} Found accessible update!", date);
 
-                if let Err(e) = room.send(content, None).await {
+                if let Err(e) = room.send(content).await {
                     eprintln!("Failed to send message! {}", e);
                 }
             }

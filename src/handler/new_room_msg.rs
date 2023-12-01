@@ -13,7 +13,7 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     if text_content.body.contains("!ping") {
         let content = RoomMessageEventContent::text_plain("Hi 🥹 It's me!");
         println!("sending");
-        room.send(content, None).await.unwrap();
+        room.send(content).await.unwrap();
         println!("message sent");
     }
 
@@ -22,7 +22,7 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
             let config = ConfBuilder::new().build();
             let healthy_content = build_health_message(&config.services).await;
             let content = RoomMessageEventContent::text_plain(healthy_content.content);
-            if let Err(e) = room.send(content, None).await {
+            if let Err(e) = room.send(content).await {
                 eprintln!("Failed to send message! {}", e);
             }
         });

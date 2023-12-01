@@ -16,6 +16,7 @@ pub enum ServiceType {
     Keycloak,
     Bitwarden,
     Wordpress,
+    Gotosocial,
 }
 
 impl fmt::Display for ServiceType {

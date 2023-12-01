@@ -1,3 +1,5 @@
+use reqwest::header::USER_AGENT;
+
 use crate::status_checker::ServiceType;
 
 pub struct Service {
@@ -23,7 +25,13 @@ impl Service {
 
     pub async fn is_okay(&self) -> bool {
         let full_url = self.get_url() + self.get_endpoint().as_str();
-        let response = reqwest::get(full_url).await;
+        let client = reqwest::Client::new();
+        let agent = format!("Ghost-Bot {}", env!("CARGO_PKG_VERSION"));
+        let response = client
+            .get(full_url)
+            .header(USER_AGENT, agent)
+            .send()
+            .await;
 
         if let Ok(r) = response {
             if !r.status().is_success() {
@@ -48,6 +56,7 @@ impl Service {
             ServiceType::Keycloak => { String::from("/health") }
             ServiceType::Bitwarden => { String::from("/alive") }
             ServiceType::Wordpress => { String::from("/robots.txt") }
+            ServiceType::Gotosocial => { String::from("/nodeinfo/2.0") }
         }
     }
 
@@ -73,6 +82,9 @@ impl Service {
             }
             ServiceType::Wordpress => {
                 !body.is_empty()
+            }
+            ServiceType::Gotosocial => {
+                body.contains("name\":\"gotosocial")
             }
         }
     }
