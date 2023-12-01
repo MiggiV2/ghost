@@ -10,16 +10,18 @@ pub struct ConfBuilder {
     file_path: String,
 }
 
-pub struct CheckerConfig {
+pub struct HealthConfig {
     pub services: Vec<Service>,
     pub room_id: Option<String>,
+    pub gotosocial_token: Option<String>,
 }
 
-impl CheckerConfig {
+impl HealthConfig {
     pub fn empty() -> Self {
-        CheckerConfig {
+        HealthConfig {
             services: Vec::new(),
             room_id: None,
+            gotosocial_token: None,
         }
     }
 
@@ -36,11 +38,11 @@ impl ConfBuilder {
         }
     }
 
-    pub fn build(&self) -> CheckerConfig {
+    pub fn build(&self) -> HealthConfig {
         let content = fs::read_to_string(self.file_path.to_string());
         if let Err(e) = content {
             eprintln!("Cloud not read config file {}! {}", self.file_path, e);
-            return CheckerConfig::empty();
+            return HealthConfig::empty();
         }
 
         let config = content.unwrap_or_default();
@@ -48,7 +50,7 @@ impl ConfBuilder {
 
         if let Err(e) = value {
             eprintln!("Failed to parse config file! {}", e);
-            return CheckerConfig::empty();
+            return HealthConfig::empty();
         }
 
         let value = value.unwrap_or_default();
@@ -56,7 +58,7 @@ impl ConfBuilder {
         let room_id = value.get("room-id");
 
         if let None = room_id {
-            return CheckerConfig::empty();
+            return HealthConfig::empty();
         }
 
         let room_id = room_id.expect("Checked").as_str().unwrap_or_default().to_string();
@@ -69,9 +71,10 @@ impl ConfBuilder {
             }
         }
 
-        CheckerConfig {
+        HealthConfig {
             services,
             room_id: Some(room_id),
+            gotosocial_token: None,
         }
     }
 }

@@ -11,6 +11,7 @@ use crate::handler::Handler;
 
 mod handler;
 mod health_monitor;
+mod notification;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

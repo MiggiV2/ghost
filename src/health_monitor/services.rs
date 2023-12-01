@@ -3,8 +3,8 @@ use reqwest::header::USER_AGENT;
 use crate::health_monitor::ServiceType;
 
 pub struct Service {
-    service_type: ServiceType,
-    url: String,
+    pub(crate) service_type: ServiceType,
+    pub(crate) url: String,
 }
 
 impl Service {
