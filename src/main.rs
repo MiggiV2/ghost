@@ -10,7 +10,7 @@ use tokio::time::sleep;
 use crate::handler::Handler;
 
 mod handler;
-mod status_checker;
+mod health_monitor;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

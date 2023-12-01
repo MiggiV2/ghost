@@ -3,8 +3,8 @@ use std::{env, fs};
 use strum::IntoEnumIterator;
 use toml::Table;
 
-use crate::status_checker::services::Service;
-use crate::status_checker::ServiceType;
+use crate::health_monitor::services::Service;
+use crate::health_monitor::ServiceType;
 
 pub struct ConfBuilder {
     file_path: String,
@@ -78,7 +78,7 @@ impl ConfBuilder {
 
 #[cfg(test)]
 mod build_tests {
-    use crate::status_checker::config_builder::ConfBuilder;
+    use crate::health_monitor::config_builder::ConfBuilder;
 
     #[test]
     fn read_config_correctly() {

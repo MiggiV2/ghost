@@ -7,8 +7,8 @@ use matrix_sdk::ruma::RoomId;
 use tokio::task::yield_now;
 use tokio::time::sleep;
 
-use crate::status_checker::config_builder::ConfBuilder;
-use crate::status_checker::services::Service;
+use crate::health_monitor::config_builder::ConfBuilder;
+use crate::health_monitor::services::Service;
 
 pub struct HealthStatus {
     pub content: String,
@@ -124,7 +124,7 @@ fn get_nl_text(is_healthy: bool) -> String {
 #[cfg(test)]
 mod msg_builder_tests {
     use crate::handler::send_startup_msg::build_health_message;
-    use crate::status_checker::config_builder::ConfBuilder;
+    use crate::health_monitor::config_builder::ConfBuilder;
 
     #[test]
     fn test_one() {

@@ -1,6 +1,6 @@
 use reqwest::header::USER_AGENT;
 
-use crate::status_checker::ServiceType;
+use crate::health_monitor::ServiceType;
 
 pub struct Service {
     service_type: ServiceType,

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod checker_tests {
-    use crate::status_checker::config_builder::ConfBuilder;
+    use crate::health_monitor::config_builder::ConfBuilder;
 
     #[test]
     fn test_all() {
