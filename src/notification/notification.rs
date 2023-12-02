@@ -2,6 +2,9 @@ use serde_derive::Deserialize;
 use serde_derive::Serialize;
 use serde_json::Value;
 
+/**
+Generated with https://transform.tools/json-to-rust-serde
+ */
 pub type Notifications = Vec<Root2>;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,7 +16,7 @@ pub struct Root2 {
     #[serde(rename = "created_at")]
     pub created_at: String,
     pub account: Account,
-    pub status: Status,
+    pub status: Option<Status>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -65,14 +68,14 @@ pub struct Status {
     #[serde(rename = "created_at")]
     pub created_at: String,
     #[serde(rename = "in_reply_to_id")]
-    pub in_reply_to_id: Value,
+    pub in_reply_to_id: Option<String>,
     #[serde(rename = "in_reply_to_account_id")]
-    pub in_reply_to_account_id: Value,
+    pub in_reply_to_account_id: Option<String>,
     pub sensitive: bool,
     #[serde(rename = "spoiler_text")]
     pub spoiler_text: String,
     pub visibility: String,
-    pub language: Value,
+    pub language: Option<String>,
     pub uri: String,
     pub url: String,
     #[serde(rename = "replies_count")]
@@ -90,12 +93,14 @@ pub struct Status {
     pub reblog: Value,
     pub account: Account2,
     #[serde(rename = "media_attachments")]
-    pub media_attachments: Vec<Value>,
-    pub mentions: Vec<Value>,
+    pub media_attachments: Vec<MediaAttachment>,
+    pub mentions: Vec<Mention>,
     pub tags: Vec<Tag>,
     pub emojis: Vec<Value>,
     pub card: Value,
     pub poll: Value,
+    pub application: Option<Application>,
+    pub text: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -129,6 +134,7 @@ pub struct Account2 {
     pub last_status_at: String,
     pub emojis: Vec<Value>,
     pub fields: Vec<Field2>,
+    pub role: Option<Role>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -142,7 +148,82 @@ pub struct Field2 {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Role {
+    pub name: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MediaAttachment {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub type_field: String,
+    pub url: String,
+    #[serde(rename = "text_url")]
+    pub text_url: String,
+    #[serde(rename = "preview_url")]
+    pub preview_url: String,
+    #[serde(rename = "remote_url")]
+    pub remote_url: Option<String>,
+    #[serde(rename = "preview_remote_url")]
+    pub preview_remote_url: Value,
+    pub meta: Meta,
+    pub description: Value,
+    pub blurhash: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Meta {
+    pub original: Original,
+    pub small: Small,
+    pub focus: Focus,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Original {
+    pub width: i64,
+    pub height: i64,
+    pub size: String,
+    pub aspect: i64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Small {
+    pub width: i64,
+    pub height: i64,
+    pub size: String,
+    pub aspect: i64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Focus {
+    pub x: i64,
+    pub y: i64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Mention {
+    pub id: String,
+    pub username: String,
+    pub url: String,
+    pub acct: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Tag {
     pub name: String,
     pub url: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Application {
+    pub name: String,
+    pub website: String,
 }

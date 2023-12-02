@@ -61,7 +61,10 @@ impl ConfBuilder {
             return HealthConfig::empty();
         }
 
-        let room_id = room_id.expect("Checked").as_str().unwrap_or_default().to_string();
+        let room_id = room_id.expect("Checked")
+            .as_str()
+            .unwrap_or_default()
+            .to_string();
 
         for service in ServiceType::iter() {
             let conf_key = service.to_string().to_lowercase();
@@ -71,10 +74,30 @@ impl ConfBuilder {
             }
         }
 
+        let mut token = None;
+        let notifications = value.get("notifications");
+        if let Some(v) = notifications {
+            if let Some(notifications) = v.as_table() {
+                if let Some(enabled) = notifications.get("gotosocial_enable") {
+                    let enabled = enabled.as_bool().expect("gotosocial_enable - expected boolean!");
+                    if enabled {
+                        let gotosocial_token = notifications.get("gotosocial_token")
+                            .expect("No token found!")
+                            .as_str()
+                            .expect("Expected String")
+                            .to_string();
+                        token = Some(gotosocial_token);
+                    } else {
+                        println!("Is disabled!");
+                    }
+                }
+            }
+        }
+
         HealthConfig {
             services,
             room_id: Some(room_id),
-            gotosocial_token: None,
+            gotosocial_token: token,
         }
     }
 }
