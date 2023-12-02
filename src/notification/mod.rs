@@ -48,7 +48,7 @@ pub fn build_notification_msg(notification: Notification) -> String {
             )
         }
         "favourite" => {
-            format!("😘<p> {} just liked your post!</p>",
+            format!("<p>😘 {} just liked your post!</p>",
                     display_name
             )
         }
@@ -88,7 +88,8 @@ mod tests {
         if let Some(notifications) = tokio_test::block_on(get_notifications(&gotosocial, &token)) {
             assert_eq!(notifications.len(), 5);
             for n in notifications {
-                println!("{}\n{}\n", n.type_field, n.account.display_name);
+                let time = n.parse_created_at();
+                println!("[{}]\t{} - {}", n.type_field, time, n.account.display_name);
             }
         } else {
             panic!("Expected responses!");

@@ -41,7 +41,7 @@ pub async fn on_startup_message(client: &Client) {
         let mut code = base.pow(config.services.len() as u32) - 1; // every service is online
         let mut code_before = code;
         // State - Gotosocial
-        let mut newest_id = String::new();
+        let mut newest_ts = 0;
         let mut gotosocial = &Service::new(String::new(), ServiceType::Wordpress);
         let token = config.gotosocial_token.unwrap_or_default();
         for service in &config.services {
@@ -97,28 +97,33 @@ pub async fn on_startup_message(client: &Client) {
             }
 
             let notifications = notifications.expect("Checked");
-            let mut saved_newest_id = newest_id.to_string();
+            let mut saved_ts = newest_ts;
 
             if let Some(newest) = &notifications.first() {
-                saved_newest_id = newest.id.to_string();
+                saved_ts = newest.parse_created_at();
             }
 
             for notification in notifications {
-                if newest_id.is_empty() {
-                    newest_id = notification.id.to_string();
-                }
-                if notification.id == newest_id {
+                if newest_ts == 0 {
+                    // println!("{} Skipping init...", date);
                     break;
                 }
+                if notification.parse_created_at() <= newest_ts {
+                    // println!("{} No new notification!", date);
+                    break;
+                }
+                println!("{} New Gotosocial notification! -> {}", date, notification.id.to_string());
                 let content = RoomMessageEventContent::text_html(
                     "Your client not support html :-(", build_notification_msg(notification),
                 );
-                println!("{} New Gotosocial notification!", date);
                 if let Err(e) = room.send(content).await {
                     eprintln!("Failed to send message! {}", e);
                 }
             }
-            newest_id = saved_newest_id;
+            if newest_ts != saved_ts {
+                // println!("{} Updating ts from {} to {}", date, newest_ts, saved_ts);
+                newest_ts = saved_ts;
+            }
         }
     });
 }
