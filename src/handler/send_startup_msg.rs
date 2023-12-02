@@ -51,7 +51,7 @@ pub async fn on_startup_message(client: &Client) {
         }
 
         loop {
-            sleep(Duration::from_secs(1 * 5)).await;
+            sleep(Duration::from_secs(60 * 5)).await;
 
             let healthy_content = build_health_message(&config.services).await;
             let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
@@ -111,7 +111,9 @@ pub async fn on_startup_message(client: &Client) {
                     println!("Newest id was {}", newest_id);
                     break;
                 }
-                let content = RoomMessageEventContent::text_plain(build_notification_msg(notification));
+                let content = RoomMessageEventContent::text_html(
+                    "Your client not support html :-(", build_notification_msg(notification),
+                );
                 println!("New Gotosocail notification!");
                 if let Err(e) = room.send(content).await {
                     eprintln!("Failed to send message! {}", e);

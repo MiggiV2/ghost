@@ -31,33 +31,34 @@ pub async fn get_notifications(go2social: &Service, token: &String) -> Option<No
 }
 
 pub fn build_notification_msg(notification: Notification) -> String {
-    // Todo HTML 2 Markdown
     let display_name = notification.account.display_name.to_string();
     match notification.type_field.as_str() {
         "status" => {
-            format!("🗨 {} posted\n{}",
+            let content_html = notification.status.expect("Expected status in type 'status'").content;
+            format!("<p>🗨 {} posted</p>\n{}",
                     display_name,
-                    notification.status.expect("Expected status in type 'status'").content
+                    content_html
             )
         }
         "mention" => {
-            format!("🥰 New comment from {}\n{}",
+            let content_html = notification.status.expect("Expected status in type 'mention'").content;
+            format!("<p>🥰 New comment from {}</p>\n{}",
                     display_name,
-                    notification.status.expect("Expected status in type 'mention'").content
+                    content_html
             )
         }
         "favourite" => {
-            format!("😘 {} just liked your post!",
+            format!("😘<p> {} just liked your post!</p>",
                     display_name
             )
         }
         "follow" => {
-            format!("😊 {} follows you now!",
+            format!("<p>😊 {} follows you now!</p>",
                     display_name
             )
         }
         _ => {
-            format!("🙄 Unknown type?!")
+            format!("<p>🙄 Unknown type?!</p>")
         }
     }
 }
