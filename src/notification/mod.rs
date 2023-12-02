@@ -1,11 +1,11 @@
 use matrix_sdk::ruma::exports::http::header::USER_AGENT;
 
 use crate::health_monitor::services::Service;
-use crate::notification::notification::Notifications;
+use crate::notification::notification::{Notification, NotificationList};
 
 mod notification;
 
-pub async fn get_notifications(go2social: &Service, token: String) -> Option<Notifications> {
+pub async fn get_notifications(go2social: &Service, token: &String) -> Option<NotificationList> {
     let full_url = go2social.get_url() + "/api/v1/notifications?limit=5";
     let client = reqwest::Client::new();
     let agent = format!("Ghost-Bot {}", env!("CARGO_PKG_VERSION"));
@@ -30,6 +30,38 @@ pub async fn get_notifications(go2social: &Service, token: String) -> Option<Not
     None
 }
 
+pub fn build_notification_msg(notification: Notification) -> String {
+    // Todo HTML 2 Markdown
+    let display_name = notification.account.display_name.to_string();
+    match notification.type_field.as_str() {
+        "status" => {
+            format!("🗨 {} posted\n{}",
+                    display_name,
+                    notification.status.expect("Expected status in type 'status'").content
+            )
+        }
+        "mention" => {
+            format!("🥰 New comment from {}\n{}",
+                    display_name,
+                    notification.status.expect("Expected status in type 'mention'").content
+            )
+        }
+        "favourite" => {
+            format!("😘 {} just liked your post!",
+                    display_name
+            )
+        }
+        "follow" => {
+            format!("😊 {} follows you now!",
+                    display_name
+            )
+        }
+        _ => {
+            format!("🙄 Unknown type?!")
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::health_monitor::config_builder::ConfBuilder;
@@ -52,7 +84,7 @@ mod tests {
 
         assert!(!token.is_empty());
 
-        if let Some(notifications) = tokio_test::block_on(get_notifications(&gotosocial, token)) {
+        if let Some(notifications) = tokio_test::block_on(get_notifications(&gotosocial, &token)) {
             assert_eq!(notifications.len(), 5);
             for n in notifications {
                 println!("{}\n{}\n", n.type_field, n.account.display_name);

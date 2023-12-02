@@ -5,11 +5,11 @@ use serde_json::Value;
 /**
 Generated with https://transform.tools/json-to-rust-serde
  */
-pub type Notifications = Vec<Root2>;
+pub type NotificationList = Vec<Notification>;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Root2 {
+pub struct Notification {
     pub id: String,
     #[serde(rename = "type")]
     pub type_field: String,
