@@ -74,31 +74,31 @@ impl ConfBuilder {
             }
         }
 
-        let mut token = None;
-        let notifications = value.get("notifications");
-        if let Some(v) = notifications {
-            if let Some(notifications) = v.as_table() {
-                if let Some(enabled) = notifications.get("gotosocial_enable") {
-                    let enabled = enabled.as_bool().expect("gotosocial_enable - expected boolean!");
-                    if enabled {
-                        let gotosocial_token = notifications.get("gotosocial_token")
-                            .expect("No token found!")
-                            .as_str()
-                            .expect("Expected String")
-                            .to_string();
-                        token = Some(gotosocial_token);
-                    } else {
-                        println!("Is disabled!");
-                    }
-                }
-            }
-        }
+        let token =
+            if let Some(notifications) = value.get("notifications").and_then(|v| v.as_table()) {
+                Self::get_token(notifications)
+            } else {
+                None
+            };
 
         HealthConfig {
             services,
             room_id: Some(room_id),
             gotosocial_token: token,
         }
+    }
+
+    fn get_token(notifications: &Table) -> Option<String> {
+        if let Some(enabled) = notifications.get("gotosocial_enable").and_then(|v| v.as_bool()) {
+            if enabled {
+                if let Some(gotosocial_token) = notifications.get("gotosocial_token").and_then(|v| v.as_str()) {
+                    return Some(gotosocial_token.to_string());
+                }
+            } else {
+                println!("Is disabled!");
+            }
+        }
+        return None;
     }
 }
 
