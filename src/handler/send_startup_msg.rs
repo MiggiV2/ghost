@@ -108,13 +108,12 @@ pub async fn on_startup_message(client: &Client) {
                     newest_id = notification.id.to_string();
                 }
                 if notification.id == newest_id {
-                    println!("Newest id was {}", newest_id);
                     break;
                 }
                 let content = RoomMessageEventContent::text_html(
                     "Your client not support html :-(", build_notification_msg(notification),
                 );
-                println!("New Gotosocail notification!");
+                println!("{} New Gotosocial notification!", date);
                 if let Err(e) = room.send(content).await {
                     eprintln!("Failed to send message! {}", e);
                 }
