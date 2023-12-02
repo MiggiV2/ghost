@@ -5,5 +5,10 @@ keycloak = "https://keycloak.example.com"
 portainer = "https://portainer.example.com"
 bitwarden = "https://bitwarden.example.com"
 wordpress = "https://www.example.com
+gotosocial = "https://social.example.com"
 #
 room-id = "!xxxxxxxxxxxxxxxxxx:matrix.example.com"
+
+[notifications]
+gotosocial_token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+gotosocial_enable = true
