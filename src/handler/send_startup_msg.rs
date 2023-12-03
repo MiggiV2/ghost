@@ -89,10 +89,12 @@ pub async fn on_startup_message(client: &Client) {
 
             // Gotosocial
             if token.is_empty() {
+                println!("{} Gotosocial disabled! No token found...", date);
                 continue;
             }
             let notifications = get_notifications(&gotosocial, &token).await;
             if notifications.is_none() {
+                println!("{} Failed to fetch notifications! -> 0 notifications...", date);
                 continue;
             }
 
@@ -105,11 +107,11 @@ pub async fn on_startup_message(client: &Client) {
 
             for notification in notifications {
                 if newest_ts == 0 {
-                    // println!("{} Skipping init...", date);
+                    println!("{} Skipping init...", date);
                     break;
                 }
                 if notification.parse_created_at() <= newest_ts {
-                    // println!("{} No new notification!", date);
+                    println!("{} No new notification!", date);
                     break;
                 }
                 println!("{} New Gotosocial notification! -> {}", date, notification.id.to_string());
@@ -121,7 +123,7 @@ pub async fn on_startup_message(client: &Client) {
                 }
             }
             if newest_ts != saved_ts {
-                // println!("{} Updating ts from {} to {}", date, newest_ts, saved_ts);
+                println!("{} Updating ts from {} to {}", date, newest_ts, saved_ts);
                 newest_ts = saved_ts;
             }
         }
