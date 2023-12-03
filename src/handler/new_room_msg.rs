@@ -12,9 +12,17 @@ pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
 
     if text_content.body.contains("!ping") {
         let content = RoomMessageEventContent::text_plain("Hi 🥹 It's me!");
-        println!("sending");
-        room.send(content).await.unwrap();
-        println!("message sent");
+        if let Err(e) = room.send(content).await {
+            eprintln!("Failed to send message! {}", e);
+        }
+    }
+
+    if text_content.body.contains("!version") {
+        let msg = format!("Current version of Ghost-Bot is {} 👻", env!("CARGO_PKG_VERSION"));
+        let content = RoomMessageEventContent::text_plain(msg);
+        if let Err(e) = room.send(content).await {
+            eprintln!("Failed to send message! {}", e);
+        }
     }
 
     if text_content.body.contains("!health") {
