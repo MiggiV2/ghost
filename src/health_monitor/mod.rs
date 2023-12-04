@@ -7,6 +7,7 @@ mod tests;
 pub mod services;
 pub mod config_builder;
 pub mod message_builder;
+pub mod updater;
 
 #[derive(Debug, EnumIter)]
 pub enum ServiceType {

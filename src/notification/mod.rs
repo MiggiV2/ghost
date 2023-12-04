@@ -5,6 +5,8 @@ use crate::health_monitor::services::Service;
 use crate::notification::notification::{Notification, NotificationList};
 
 mod notification;
+pub mod updater;
+mod tests;
 
 pub async fn get_notifications(go2social: &Service, token: &String) -> Result<NotificationList, String> {
     let full_url = go2social.get_url() + "/api/v1/notifications?limit=5";
@@ -49,22 +51,27 @@ async fn parse_body(r: Response) -> Result<Result<NotificationList, String>, Res
     })
 }
 
-pub fn build_notification_msg(notification: Notification) -> String {
+pub fn build_notification_html(notification: &Notification) -> String {
     let display_name = notification.account.display_name.to_string();
     match notification.type_field.as_str() {
         "status" => {
-            let content_html = notification.status.expect("Expected status in type 'status'").content;
-            format!("<p>🗨 {} posted</p>\n{}",
-                    display_name,
-                    content_html
-            )
+            if let Some(status) = &notification.status {
+                return format!("<p>🗨 {} posted</p>\n{}",
+                               display_name,
+                               status.content
+                );
+            }
+            // Fallback
+            format!("<p>🗨 {} posted</p>", display_name)
         }
         "mention" => {
-            let content_html = notification.status.expect("Expected status in type 'mention'").content;
-            format!("<p>🥰 New comment from {}</p>\n{}",
-                    display_name,
-                    content_html
-            )
+            if let Some(status) = &notification.status {
+                return format!("<p>🥰 New comment from {}</p>\n{}",
+                               display_name,
+                               status.content
+                );
+            }
+            format!("<p>🥰 New comment from {}</p>", display_name)
         }
         "favourite" => {
             format!("<p>😘 {} just liked your post!</p>",
@@ -82,41 +89,23 @@ pub fn build_notification_msg(notification: Notification) -> String {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::health_monitor::config_builder::ConfBuilder;
-    use crate::health_monitor::services::Service;
-    use crate::health_monitor::ServiceType;
-    use crate::notification::get_notifications;
-
-    #[test]
-    pub fn test() {
-        let mut gotosocial = Service::new(String::new(), ServiceType::Wordpress);
-        let config = ConfBuilder::new().build();
-        let token = config.gotosocial_token
-            .expect("Expected gotosocial_token in checker.toml!");
-        // load gotosocial from config
-        for service in config.services {
-            if let ServiceType::Gotosocial = service.service_type {
-                gotosocial = service;
-            }
+pub fn build_notification_plain(notification: &Notification) -> String {
+    let display_name = notification.account.display_name.to_string();
+    match notification.type_field.as_str() {
+        "status" => {
+            format!("🗨 {} just tooted!", display_name, )
         }
-
-        assert!(!token.is_empty());
-
-        let response = tokio_test::block_on(get_notifications(&gotosocial, &token));
-
-        match response {
-            Ok(notifications) => {
-                assert_eq!(notifications.len(), 5);
-                for n in notifications {
-                    let time = n.parse_created_at();
-                    println!("[{}]\t{} - {}", n.type_field, time, n.account.display_name);
-                }
-            }
-            Err(e) => {
-                panic!("Expected responses! -> {}", e);
-            }
+        "mention" => {
+            format!("🥰 A new comment from {}", display_name)
+        }
+        "favourite" => {
+            format!("😘 {} just liked your post!", display_name)
+        }
+        "follow" => {
+            format!("😊 {} follows you now!", display_name)
+        }
+        _ => {
+            format!("🙄 Unknown type?!")
         }
     }
 }
