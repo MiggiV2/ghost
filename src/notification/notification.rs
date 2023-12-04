@@ -195,7 +195,7 @@ pub struct Original {
     pub width: i64,
     pub height: i64,
     pub size: String,
-    pub aspect: i64,
+    pub aspect: f32,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -204,7 +204,7 @@ pub struct Small {
     pub width: i64,
     pub height: i64,
     pub size: String,
-    pub aspect: i64,
+    pub aspect: f32,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
