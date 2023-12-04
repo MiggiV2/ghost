@@ -93,7 +93,7 @@ pub async fn on_startup_message(client: &Client) {
                 continue;
             }
             let notifications = get_notifications(&gotosocial, &token).await;
-            if notifications.is_none() {
+            if notifications.is_err() {
                 println!("{} Failed to fetch notifications! -> 0 notifications...", date);
                 continue;
             }
@@ -104,6 +104,8 @@ pub async fn on_startup_message(client: &Client) {
             if let Some(newest) = &notifications.first() {
                 saved_ts = newest.parse_created_at();
             }
+
+            println!("{} Fetched notifications {}!", date, notifications.len());
 
             for notification in notifications {
                 if newest_ts == 0 {
