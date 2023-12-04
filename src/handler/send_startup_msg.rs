@@ -8,14 +8,10 @@ use tokio::task::yield_now;
 use tokio::time::sleep;
 
 use crate::health_monitor::config_builder::ConfBuilder;
+use crate::health_monitor::message_builder::build_health_message;
 use crate::health_monitor::services::Service;
 use crate::health_monitor::ServiceType;
 use crate::notification::{build_notification_msg, get_notifications};
-
-pub struct HealthStatus {
-    pub content: String,
-    pub code: i32,
-}
 
 pub async fn on_startup_message(client: &Client) {
     let config = ConfBuilder::new().build();
@@ -30,16 +26,18 @@ pub async fn on_startup_message(client: &Client) {
     let room = client.get_room(&room_id)
         .expect("Failed to get room!");
 
-    tokio::spawn(async move {
-        let content = RoomMessageEventContent::text_plain("Bot is up and running! 👟");
-        if let Err(e) = room.send(content).await {
-            eprintln!("Failed to send message! {}", e);
-        }
+    let content = RoomMessageEventContent::text_plain("Bot is up and running! 👟");
+    if let Err(e) = room.send(content).await {
+        eprintln!("Failed to send message! {}", e);
+    }
 
+    tokio::spawn(async move {
         let base: i32 = 2;
+
         // State - Health
         let mut code = base.pow(config.services.len() as u32) - 1; // every service is online
         let mut code_before = code;
+
         // State - Gotosocial
         let mut newest_ts = 0;
         let mut gotosocial = &Service::new(String::new(), ServiceType::Wordpress);
@@ -53,6 +51,7 @@ pub async fn on_startup_message(client: &Client) {
         loop {
             sleep(Duration::from_secs(60 * 5)).await;
 
+            // Health
             let healthy_content = build_health_message(&config.services).await;
             let date = Local::now().format("[%Y-%m-%d] %H:%M:%S");
             yield_now().await;
@@ -130,63 +129,4 @@ pub async fn on_startup_message(client: &Client) {
             }
         }
     });
-}
-
-pub async fn build_health_message(services: &Vec<Service>) -> HealthStatus {
-    let mut content = String::from("🐋 Here is an update of the accessible web services and their status:\n");
-    let base: i32 = 2;
-    let mut index = 0;
-    let mut status_code = 0;
-
-    for service in services {
-        let is_okay = service.is_okay().await;
-        let emoji = get_status_emoji(is_okay);
-        let text = get_nl_text(is_okay);
-
-        let line;
-        if is_okay {
-            status_code += base.pow(index);
-            line = format!("{} {} - {}\n", emoji, service.get_type().to_string(), text);
-        } else {
-            line = format!("{} {} - {} Check this service on {}\n", emoji, service.get_type().to_string(), text, service.get_url());
-        }
-        content.push_str(line.as_str());
-        index += 1;
-    }
-
-    HealthStatus {
-        content,
-        code: status_code,
-    }
-}
-
-fn get_status_emoji(is_healthy: bool) -> String {
-    if is_healthy {
-        return String::from("🟢");
-    }
-    return String::from("🔴");
-}
-
-fn get_nl_text(is_healthy: bool) -> String {
-    if is_healthy {
-        return String::from("Online and ready to go");
-    }
-    String::from("Offline 💀")
-}
-
-#[cfg(test)]
-mod msg_builder_tests {
-    use crate::handler::send_startup_msg::build_health_message;
-    use crate::health_monitor::config_builder::ConfBuilder;
-
-    #[test]
-    fn test_one() {
-        let config = ConfBuilder::new().build();
-        let health_status = tokio_test::block_on(build_health_message(&config.services));
-
-        assert!(health_status.content.len() > 250, "Message is to short");
-        assert!(health_status.content.contains("🐋"), "There is a whale missing!");
-        assert!(health_status.content.contains("🟢"), "Expected at least one green dot.");
-        assert!(health_status.content.contains("\n"));
-    }
 }

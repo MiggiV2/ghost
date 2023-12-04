@@ -6,6 +6,7 @@ use strum_macros::EnumIter;
 mod tests;
 pub mod services;
 pub mod config_builder;
+pub mod message_builder;
 
 #[derive(Debug, EnumIter)]
 pub enum ServiceType {

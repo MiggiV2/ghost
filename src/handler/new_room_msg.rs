@@ -1,8 +1,8 @@
 use matrix_sdk::{Room, RoomState};
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
 
-use crate::handler::send_startup_msg::build_health_message;
 use crate::health_monitor::config_builder::ConfBuilder;
+use crate::health_monitor::message_builder::build_health_message;
 
 pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     if room.state() != RoomState::Joined {
