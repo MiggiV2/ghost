@@ -66,12 +66,12 @@ pub fn build_notification_html(notification: &Notification) -> String {
         }
         "mention" => {
             if let Some(status) = &notification.status {
-                return format!("<p>🥰 New comment from {}</p>\n{}",
+                return format!("<p>🥰 {} replied to your post!</p>\n{}",
                                display_name,
                                status.content
                 );
             }
-            format!("<p>🥰 New comment from {}</p>", display_name)
+            format!("<p>🥰 {} replied to your post!</p>", display_name)
         }
         "favourite" => {
             format!("<p>😘 {} just liked your post!</p>",
@@ -83,8 +83,18 @@ pub fn build_notification_html(notification: &Notification) -> String {
                     display_name
             )
         }
+        "reblog" => {
+            format!("<p>🔄 {} boosted your post!</p>",
+                    display_name
+            )
+        }
+        "poll" => {
+            format!("<p>📊 {}'s poll ended!</p>",
+                    display_name
+            )
+        }
         _ => {
-            format!("<p>🙄 Unknown type?!</p>")
+            String::from("<p>🙄 Unknown type?!</p>")
         }
     }
 }
