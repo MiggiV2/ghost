@@ -24,6 +24,6 @@ pub async fn on_startup_message(client: &Client) {
         eprintln!("Failed to send message! {}", e);
     }
 
-    send_health_updates(&client, 1).await;
-    send_notification_updates(&client, 1).await;
+    send_health_updates(&client, 15).await;
+    send_notification_updates(&client, 2).await;
 }
