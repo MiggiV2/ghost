@@ -1,14 +1,14 @@
-synapse = "https://matrix.familyhainz.de"
-forgejo = "https://gitea.familyhainz.de"
-nextcloud = "https://nextcloud.mymiggi.de"
-keycloak = "https://auth.familyhainz.de"
-portainer = "https://vmd116727.contaboserver.net"
-bitwarden = "https://bitwarden.familyhainz.de"
-wordpress = "https://www.mymiggi.de"
-gotosocial = "https://social.mymiggi.de"
+synapse = "https://matrix.example.com"
+forgejo = "https://forgejo.example.com"
+nextcloud = "https://nextcloud.example.com
+keycloak = "https://keycloak.example.com"
+portainer = "https://portainer.example.com"
+bitwarden = "https://bitwarden.example.com"
+wordpress = "https://www.example.com
+gotosocial = "https://social.example.com"
 #
-room-id = "!hFekksusgjPusUvBbO:matrix.familyhainz.de"
+room-id = "!xxxxxxxxxxxxxxxxxx:matrix.example.com"
 
 [notifications]
-gotosocial_token = "ZGEZYZNMODYTNMRMNS0ZYJAXLTG3ZDUTNZIXYZQ0MTZJZMZH"
+gotosocial_token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 gotosocial_enable = true
