@@ -8,8 +8,8 @@ mod notification;
 pub mod updater;
 mod tests;
 
-pub async fn get_notifications(go2social: &Service, token: &String) -> Result<NotificationList, String> {
-    let full_url = go2social.get_url() + "/api/v1/notifications?limit=5";
+pub async fn get_notifications(go2social: &Service, token: &String, limit: i32) -> Result<NotificationList, String> {
+    let full_url = format!("{}/api/v1/notifications?limit={}", go2social.get_url(), limit);
     let client = reqwest::Client::new();
     let agent = format!("Ghost-Bot {}", env!("CARGO_PKG_VERSION"));
     let response = client

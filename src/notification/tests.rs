@@ -19,12 +19,12 @@ mod tests {
         }
 
         assert!(!token.is_empty());
-
-        let response = tokio_test::block_on(get_notifications(&gotosocial, &token));
+        let limit = 30;
+        let response = tokio_test::block_on(get_notifications(&gotosocial, &token, limit));
 
         match response {
             Ok(notifications) => {
-                assert_eq!(notifications.len(), 5);
+                assert_eq!(notifications.len(), limit as usize);
                 for n in notifications {
                     let time = n.parse_created_at();
                     println!("[{}]\t{} - {}", n.type_field, time, n.account.display_name);

@@ -43,7 +43,7 @@ pub async fn send_notification_updates(client: &Client) {
                 println!("{} Gotosocial disabled! No token found...", date);
                 break;
             }
-            let notifications = get_notifications(&gotosocial, &token).await;
+            let notifications = get_notifications(&gotosocial, &token, 5).await;
             if let Err(e) = notifications {
                 eprintln!("An error occurred! {}", e);
                 println!("{} Failed to fetch notifications! -> 0 notifications...", date);
