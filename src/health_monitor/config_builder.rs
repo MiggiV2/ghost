@@ -14,6 +14,7 @@ pub struct GhostConfig {
     pub services: Vec<Service>,
     pub room_id: Option<String>,
     pub gotosocial_token: Option<String>,
+    pub notification_refresh: Option<i64>,
 }
 
 impl GhostConfig {
@@ -22,6 +23,7 @@ impl GhostConfig {
             services: Vec::new(),
             room_id: None,
             gotosocial_token: None,
+            notification_refresh: None,
         }
     }
 
@@ -74,29 +76,32 @@ impl ConfBuilder {
             }
         }
 
-        let token =
-            if let Some(notifications) = value.get("notifications").and_then(|v| v.as_table()) {
-                Self::get_token(notifications)
-            } else {
-                None
-            };
+        let mut gotosocial_token = None;
+        let mut notification_refresh = None;
+
+        if let Some(notifications) = value.get("notifications").and_then(|v| v.as_table()) {
+            gotosocial_token = Self::get_token(notifications);
+            notification_refresh = Self::get_refresh(notifications);
+        }
 
         GhostConfig {
             services,
             room_id: Some(room_id),
-            gotosocial_token: token,
+            gotosocial_token,
+            notification_refresh,
         }
     }
 
     fn get_token(notifications: &Table) -> Option<String> {
-        if let Some(enabled) = notifications.get("gotosocial_enable").and_then(|v| v.as_bool()) {
-            if enabled {
-                if let Some(gotosocial_token) = notifications.get("gotosocial_token").and_then(|v| v.as_str()) {
-                    return Some(gotosocial_token.to_string());
-                }
-            } else {
-                println!("Is disabled!");
-            }
+        if let Some(gotosocial_token) = notifications.get("gotosocial_token").and_then(|v| v.as_str()) {
+            return Some(gotosocial_token.to_string());
+        }
+        return None;
+    }
+
+    fn get_refresh(notifications: &Table) -> Option<i64> {
+        if let Some(refresh_interval) = notifications.get("refresh_interval").and_then(|v| v.as_integer()) {
+            return Some(refresh_interval);
         }
         return None;
     }

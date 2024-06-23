@@ -11,4 +11,4 @@ room-id = "!xxxxxxxxxxxxxxxxxx:matrix.example.com"
 
 [notifications]
 gotosocial_token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-gotosocial_enable = true
+refresh_interval = 120 #in seconds

@@ -43,7 +43,11 @@ async fn parse_body(r: Response) -> Result<Result<NotificationList, String>, Res
                 Ok(list)
             }
             Err(e) => {
-                Err(e.to_string())
+                if cfg!(debug_assertions) {
+                    Err(e.to_string() + "\nJSON: " + body.as_str())
+                } else {
+                    Err(e.to_string())
+                }
             }
         }
     } else {

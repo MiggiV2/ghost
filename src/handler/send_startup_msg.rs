@@ -25,5 +25,5 @@ pub async fn on_startup_message(client: &Client) {
     }
 
     send_health_updates(&client, 15).await;
-    send_notification_updates(&client, 2).await;
+    send_notification_updates(&client).await;
 }

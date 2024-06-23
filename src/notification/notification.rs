@@ -56,7 +56,7 @@ pub struct Account {
     #[serde(rename = "statuses_count")]
     pub statuses_count: i64,
     #[serde(rename = "last_status_at")]
-    pub last_status_at: String,
+    pub last_status_at: Option<String>,
     pub emojis: Vec<Value>,
     pub fields: Vec<Field>,
 }
