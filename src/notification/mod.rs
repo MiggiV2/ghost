@@ -60,7 +60,7 @@ pub fn build_notification_html(notification: &Notification) -> String {
     match notification.type_field.as_str() {
         "status" => {
             if let Some(status) = &notification.status {
-                return format!("<p>🗨 {} posted</p>\n{}",
+                return format!("<p>🗨 {} posted</p>\n<p>{}</p>",
                                display_name,
                                status.content
                 );
@@ -70,7 +70,7 @@ pub fn build_notification_html(notification: &Notification) -> String {
         }
         "mention" => {
             if let Some(status) = &notification.status {
-                return format!("<p>🥰 {} replied to your post!</p>\n{}",
+                return format!("<p>🥰 {} replied to your post!</p>\n<p>{}</p>",
                                display_name,
                                status.content
                 );
@@ -78,6 +78,12 @@ pub fn build_notification_html(notification: &Notification) -> String {
             format!("<p>🥰 {} replied to your post!</p>", display_name)
         }
         "favourite" => {
+            if let Some(status) = &notification.status {
+                return format!("<p>😘 {} just liked your post!</p>\n<p>{}</p>",
+                               display_name,
+                               status.content
+                );
+            }
             format!("<p>😘 {} just liked your post!</p>",
                     display_name
             )
