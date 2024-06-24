@@ -9,8 +9,5 @@ FROM debian:bookworm-slim
 RUN apt update && \
 	apt install sqlite3 curl -y && \
 	rm -rf /var/lib/apt/lists/*
-ENV URL ${HOMESERVER_URL}
-ENV USR ${USERNAME}
-ENV PW ${PASSWORD}
 COPY --from=builder /usr/local/cargo/bin/ghost /usr/local/bin/ghost
 CMD /usr/local/bin/ghost ${URL} ${USR} ${PW}
